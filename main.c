@@ -38,15 +38,20 @@
 
 #define MAX_COMMAND_SIZE 255    // The maximum command-line size
 
-#define MAX_NUM_ARGUMENTS 5     // Mav shell only supports five arguments
+#define MAX_NUM_ARGUMENTS 10     // Mav shell only supports five arguments
 
 int main()
 {
 
   char * cmd_str = (char*) malloc( MAX_COMMAND_SIZE );
   pid_t list[15];
+  char* history[100];
   int i;
   int count=0;
+  int historyIndex=0;
+//   for(int i=0;i<15;i++){
+//       history[i]=(char*)malloc(255);
+//   }
 
   while( 1 )
   {
@@ -61,6 +66,9 @@ int main()
     // is no input
     while( !fgets (cmd_str, MAX_COMMAND_SIZE, stdin) );
 
+    //memset(&history[historyIndex],0,255);
+    history[historyIndex]=strdup(cmd_str);
+    historyIndex++;
     /* Parse input */
     char *token[MAX_NUM_ARGUMENTS];
 
@@ -68,9 +76,15 @@ int main()
                                                            
     // Pointer to point to the token
     // parsed by strsep
-    char *argument_ptr;                                         
-                                                           
-    char *working_str  = strdup( cmd_str );                
+    char *argument_ptr; 
+
+    //this thing giving segfault 
+
+    // memset(&history[historyIndex],0,255);                                                       
+    char *working_str  = strdup( cmd_str );
+    // strncpy(history[historyIndex],working_str,255);
+    // historyIndex++;
+                  
 
     // we are going to move the working_str pointer so
     // keep track of its original value so we can deallocate
@@ -121,6 +135,9 @@ int main()
             list[count]=0;
             count++;
             printf("place for history\n");
+            for(i=0;i<historyIndex;i++){
+                printf("%d:%s",i+1,history[i]);
+            }
         }
         else if(strcmp(token[0],"!n")==0){
             list[count]=0;
