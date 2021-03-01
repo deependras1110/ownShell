@@ -44,9 +44,13 @@ int main()
 {
 
   char * cmd_str = (char*) malloc( MAX_COMMAND_SIZE );
+  pid_t list[15];
+  int i;
+  int count=0;
 
   while( 1 )
   {
+    
     // Print out the msh prompt
     printf ("msh> ");
 
@@ -88,27 +92,56 @@ int main()
     // Now print the tokenized input as a debug check
     // \TODO Remove this code and replace with your shell functionality
     if(token[0]!=NULL){
+        
 
         if(strcmp(token[0],"exit")==0){
             exit(0);
+            list[count]=0;
+            count++;
         }
 
         else if(strcmp(token[0],"cd")==0){
         // printf("place for cd!\n");
             chdir(token[1]);
-         }
-
-        else{
+            list[count]=0;
+            count++;
             
+        }
+        else if(strcmp(token[0],"showpids")==0){
+            
+            printf("place for list\n");
+            if(count>15){
+                count=15;
+            }
+            for(i=0;i<count;i++){
+                printf("%d\n",list[i]);
+            }
+        }
+        else if(strcmp(token[0],"history")==0){
+            list[count]=0;
+            count++;
+            printf("place for history\n");
+        }
+        else if(strcmp(token[0],"!n")==0){
+            list[count]=0;
+            count++;
+            printf("place for !n\n");
+        }
+        
+        else{
             pid_t pid = fork( );
+            list[count]=pid;
+            count++;
             if( pid == 0 )
              {
                 // Notice you can add as many NULLs on the end as you want
                 int ret = execvp( token[0], &token[0] );  
                 if( ret == -1 )
                 {
-                    perror("invalid option: ");
+                    printf("%s:command not found\n",token[0]);
+                    break;
                 }
+                
             }
             else 
             {
@@ -116,8 +149,9 @@ int main()
                 wait( & status );
             }
         }
-       
+        free( working_root );
     }
+
     
 
     // int token_index  = 0;
@@ -126,7 +160,7 @@ int main()
     //   printf("token[%d] = %s\n", token_index, token[token_index] );  
     // }
 
-    free( working_root );
+    
 
   }
   return 0;
