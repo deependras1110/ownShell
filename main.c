@@ -44,9 +44,14 @@ int main()
 {
 
   char * cmd_str = (char*) malloc( MAX_COMMAND_SIZE );
-  pid_t list[15];
+  pid_t list[100];
+  char* history[100];
   int i;
   int count=0;
+  int historyIndex=0;
+  for(int i=0;i<15;i++){
+      history[i]=(char*)malloc(255);
+  }
 
   while( 1 )
   {
@@ -61,6 +66,8 @@ int main()
     // is no input
     while( !fgets (cmd_str, MAX_COMMAND_SIZE, stdin) );
 
+    history[historyIndex]=strdup(cmd_str);
+    historyIndex++;
     /* Parse input */
     char *token[MAX_NUM_ARGUMENTS];
 
@@ -68,9 +75,15 @@ int main()
                                                            
     // Pointer to point to the token
     // parsed by strsep
-    char *argument_ptr;                                         
-                                                           
-    char *working_str  = strdup( cmd_str );                
+    char *argument_ptr; 
+
+    //this thing giving segfault 
+
+    // memset(&history[historyIndex],0,255);                                                       
+    char *working_str  = strdup( cmd_str );
+    // strncpy(history[historyIndex],working_str,255);
+    // historyIndex++;
+                  
 
     // we are going to move the working_str pointer so
     // keep track of its original value so we can deallocate
@@ -102,25 +115,47 @@ int main()
 
         else if(strcmp(token[0],"cd")==0){
         // printf("place for cd!\n");
-            chdir(token[1]);
             list[count]=0;
             count++;
+            chdir(token[1]);
+            
             
         }
         else if(strcmp(token[0],"showpids")==0){
-            
-            printf("place for list\n");
-            if(count>15){
-                count=15;
-            }
-            for(i=0;i<count;i++){
-                printf("%d\n",list[i]);
-            }
-        }
-        else if(strcmp(token[0],"history")==0){
+            int diff;
             list[count]=0;
             count++;
-            printf("place for history\n");
+            //printf("place for list\n");
+            if(count>15){
+                diff=count-15;
+                for(i=diff;i<count;i++){
+                printf("%d:%d\n",i-diff,list[i]);
+                }
+            }
+            else{
+                for(i=0;i<count;i++){
+                printf("%d:%d\n",i,list[i]);
+            }
+            }
+            
+        }
+        else if(strcmp(token[0],"history")==0){
+            int diff;
+            list[count]=0;
+            count++;
+            //printf("place for history\n");
+            if(historyIndex>15){
+                diff=historyIndex-15;
+                for(i=diff;i<historyIndex;i++){
+                printf("%d:%s",i-diff,history[i]);
+                }
+            }
+            else{
+                for(i=0;i<historyIndex;i++){
+                printf("%d:%s",i,history[i]);
+            }
+            }
+            
         }
         else if(strcmp(token[0],"!n")==0){
             list[count]=0;
