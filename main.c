@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-//
-// Copyright (c) 2016, 2017, 2021 Trevor Bakker
-//
+// 
+// Copyright (c) 2016, 2017, 2021 Trevor Bakker 
+// 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
+// 
 // 7f704d5f-9811-4b91-a918-57c1bb646b70
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -36,15 +36,14 @@
                                 // In this case  white space
                                 // will separate the tokens on our command line
 
-#define MAX_COMMAND_SIZE 100    // The maximum command-line size
+#define MAX_COMMAND_SIZE 255    // The maximum command-line size
 
-#define MAX_NUM_ARGUMENTS 10     // Mav shell only supports five arguments
+#define MAX_NUM_ARGUMENTS 5     // Mav shell only supports five arguments
 
 int main()
 {
 
   char * cmd_str = (char*) malloc( MAX_COMMAND_SIZE );
-  char * history=(char*)malloc(sizeof (char)*100);
 
   while( 1 )
   {
@@ -61,15 +60,13 @@ int main()
     /* Parse input */
     char *token[MAX_NUM_ARGUMENTS];
 
-
-    int   token_count = 0;
-
-
+    int   token_count = 0;                                 
+                                                           
     // Pointer to point to the token
     // parsed by strsep
-    char *argument_ptr;
-
-    char *working_str  = strdup( cmd_str );
+    char *argument_ptr;                                         
+                                                           
+    char *working_str  = strdup( cmd_str );                
 
     // we are going to move the working_str pointer so
     // keep track of its original value so we can deallocate
@@ -77,7 +74,7 @@ int main()
     char *working_root = working_str;
 
     // Tokenize the input strings with whitespace used as the delimiter
-    while ( ( (argument_ptr = strsep(&working_str, WHITESPACE ) ) != NULL) &&
+    while ( ( (argument_ptr = strsep(&working_str, WHITESPACE ) ) != NULL) && 
               (token_count<MAX_NUM_ARGUMENTS))
     {
       token[token_count] = strndup( argument_ptr, MAX_COMMAND_SIZE );
@@ -90,39 +87,47 @@ int main()
 
     // Now print the tokenized input as a debug check
     // \TODO Remove this code and replace with your shell functionality
+    if(token[0]!=NULL){
 
-    //int token_index  = 0;
-    //for( token_index = 0; token_index < token_count; token_index ++ )
-    //{
-      //printf("token[%d] = %s\n", token_index, token[token_index] );
-    //}
-    if(strcmp(token[0],"exit")==0){
-        exit(0);
-    }
+        if(strcmp(token[0],"exit")==0){
+            exit(0);
+        }
 
-    else if(strcmp(token[0],"cd")==0){
-        chdir(token[1]);
-    }
+        else if(strcmp(token[0],"cd")==0){
+        // printf("place for cd!\n");
+            chdir(token[1]);
+         }
 
-    else{
-        pid_t pid = fork( );
-        if( pid == 0 )
-        {
-            int ret = execvp( token[0], &token[0] );
-            if( ret == -1 )
+        else{
+            
+            pid_t pid = fork( );
+            if( pid == 0 )
+             {
+                // Notice you can add as many NULLs on the end as you want
+                int ret = execvp( token[0], &token[0] );  
+                if( ret == -1 )
+                {
+                    perror("invalid option: ");
+                }
+            }
+            else 
             {
-                perror("execl failed: ");
+                int status;
+                wait( & status );
             }
         }
-        else
-        {
-            int status;
-            wait( & status );
-        }
+       
     }
+    
+
+    // int token_index  = 0;
+    // for( token_index = 0; token_index < token_count; token_index ++ ) 
+    // {
+    //   printf("token[%d] = %s\n", token_index, token[token_index] );  
+    // }
 
     free( working_root );
 
   }
-    return 0;
+  return 0;
 }
