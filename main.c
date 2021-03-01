@@ -38,7 +38,7 @@
 
 #define MAX_COMMAND_SIZE 255    // The maximum command-line size
 
-#define MAX_NUM_ARGUMENTS 10     // Mav shell only supports five arguments
+#define MAX_NUM_ARGUMENTS 5     // Mav shell only supports five arguments
 
 int main()
 {
@@ -49,9 +49,9 @@ int main()
   int i;
   int count=0;
   int historyIndex=0;
-//   for(int i=0;i<15;i++){
-//       history[i]=(char*)malloc(255);
-//   }
+  for(int i=0;i<15;i++){
+      history[i]=(char*)malloc(255);
+  }
 
   while( 1 )
   {
@@ -66,7 +66,6 @@ int main()
     // is no input
     while( !fgets (cmd_str, MAX_COMMAND_SIZE, stdin) );
 
-    //memset(&history[historyIndex],0,255);
     history[historyIndex]=strdup(cmd_str);
     historyIndex++;
     /* Parse input */
@@ -116,9 +115,10 @@ int main()
 
         else if(strcmp(token[0],"cd")==0){
         // printf("place for cd!\n");
-            chdir(token[1]);
             list[count]=0;
             count++;
+            chdir(token[1]);
+            
             
         }
         else if(strcmp(token[0],"showpids")==0){
@@ -132,12 +132,22 @@ int main()
             }
         }
         else if(strcmp(token[0],"history")==0){
+            int diff;
             list[count]=0;
             count++;
             printf("place for history\n");
-            for(i=0;i<historyIndex;i++){
+            if(historyIndex>15){
+                diff=historyIndex-15;
+                for(i=diff;i<historyIndex;i++){
+                printf("%d:%s",i-diff,history[i]);
+                }
+            }
+            else{
+                for(i=0;i<historyIndex;i++){
                 printf("%d:%s",i+1,history[i]);
             }
+            }
+            
         }
         else if(strcmp(token[0],"!n")==0){
             list[count]=0;
